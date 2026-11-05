@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ORACLE PORTAL]</title>
+    <style>
+        body {
+            background-color: #030303;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .window {
+            border: 1px solid #00ff00;
+            background-color: #090909;
+            width: 100%;
+            max-width: 800px;
+            height: 550px;
+            box-shadow: 0 0 20px rgba(0,255,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #00ff00;
+            color: #000;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Экран авторизации */
+        .auth-screen {
+            margin: auto;
+            text-align: center;
+            max-width: 400px;
+        }
+        .input-line {
+            display: flex;
+            margin-top: 20px;
+            border: 1px solid #00ff00;
+            background: #000;
+        }
+        .input-line span {
+            padding: 10px;
+            background-color: #00ff00;
+            color: #000;
+            font-weight: bold;
+        }
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            outline: none;
+        }
+        .error-msg { color: #ff0000; margin-top: 15px; font-size: 14px; display: none; }
+        
+        /* Экран Терминала Линукс */
+        .terminal-screen { display: none; height: 100%; flex-direction: column; }
+        .terminal-log { flex-grow: 1; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
+        .terminal-input-row { display: flex; align-items: center; }
+        .terminal-prompt { color: #00ff00; font-weight: bold; margin-right: 5px; }
+
+        /* Экран ИИ Чат-Бота */
+        .ai-screen { display: none; height: 100%; flex-direction: column; }
+        .chat-history { flex-grow: 1; overflow-y: auto; padding: 10px; border: 1px solid #113311; background-color: #020202; margin-bottom: 15px; }
+        .msg { margin-bottom: 12px; line-height: 1.4; white-space: pre-wrap; }
+        .msg.bot { color: #00ff00; }
+        .msg.user { color: #ffffff; }
+        .chat-input-row { display: flex; border: 1px solid #00ff00; background: #000; }
+        .chat-input-row span { padding: 10px; color: #888; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="window">
+    <div class="header" id="win-title">[ORACLE CENTRAL SECURITY GATEWAY]</div>
+    <div class="content">
+        
+        <!-- 1. ЭКРАН АВТОРИЗАЦИИ -->
+        <div class="auth-screen" id="auth-area">
+            <p>// ENTER DECRYPTION KEY TO ACCESS SUB-LEVEL SYSTEMS</p>
+            <div class="input-line">
+                <span>KEY></span>
+                <input type="password" id="pass-input" autocomplete="off" placeholder="••••••••">
+            </div>
+            <div class="error-msg" id="error-box">Access Denied.</div>
+        </div>
+
+        <!-- 2. ЭКРАН СИМУЛЯТОРА ЛИНУКС -->
+        <div class="terminal-screen" id="terminal-area">
+            <div class="terminal-log" id="term-log">Welcome to Oracle OS (Kernel 6.1.0-mainline)
+Type 'help' to view available system tools.
+
+</div>
+            <div class="terminal-input-row">
+                <span class="terminal-prompt" id="term-prompt">guest@oracle:~$</span>
+                <input type="text" id="term-input" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- 3. ЭКРАН ИИ ЧАТ-БОТА -->
+        <div class="ai-screen" id="ai-area">
+            <div class="chat-history" id="chat-box">
+                <!-- Сюда будут динамически добавляться реплики -->
+            </div>
+            <div class="chat-input-row">
+                <span>YOU></span>
+                <input type="text" id="ai-input" autocomplete="off" placeholder="Type your answer...">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Получаем DOM элементы всех трех экранов
+    const authArea = document.getElementById('auth-area');
+    const passInput = document.getElementById('pass-input');
+    const errorBox = document.getElementById('error-box');
+    
+    const termArea = document.getElementById('terminal-area');
+    const termLog = document.getElementById('term-log');
+    const termInput = document.getElementById('term-input');
+    const termPrompt = document.getElementById('term-prompt');
+
+    const aiArea = document.getElementById('ai-area');
+    const chatBox = document.getElementById('chat-box');
+    const aiInput = document.getElementById('ai-input');
+
+    const winTitle = document.getElementById('win-title');
+
+    let currentPath = "root";
+
+    // --- ЛОГИКА ОКНА ВХОДА ---
+    passInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const password = passInput.value;
+            
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    errorBox.style.display = 'none';
+                    if (data.type === 'terminal') {
+                        // Режим Линукса
+                        authArea.style.display = 'none';
+                        termArea.style.display = 'flex';
+                        winTitle.innerText = "[ORACLE INTERACTIVE LINUX SHELL]";
+                        termInput.focus();
+                    } else if (data.type === 'ai_chat') {
+                        // Режим ИИ-чата
+                        authArea.style.display = 'none';
+                        aiArea.style.display = 'flex';
+                        winTitle.innerText = "[ORACLE QUANTUM SECURITY GUARDIAN]";
+                        
+                        // Сразу выводим ТВОЮ приветственную фразу на английском
+                        chatBox.innerHTML = `<div class="msg bot">[ORACLE]: Core identity database requested. Who are you?</div>`;
+                        aiInput.focus();
+                    }
+                } else {
+                    errorBox.innerText = data.message;
+                    errorBox.style.display = 'block';
+                    passInput.value = '';
+                }
+            });
+        }
+    });
+
+    // --- ЛОГИКА LINUX ТЕРМИНАЛА ---
+    termInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const cmdText = termInput.value;
+            termInput.value = '';
+            
+            if (cmdText.trim().toLowerCase() === 'clear') {
+                termLog.innerHTML = '';
+                return;
+            }
+
+            const currentPromptText = termPrompt.innerText;
+            termLog.innerHTML += `${currentPromptText} ${cmdText}\n`;
+
+            fetch('/terminal/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: cmdText, path: currentPath })
+            })
+            .then(res => res.json())
+            .then(data => {
+                currentPath = data.path;
+                const displayPath = currentPath === 'root' ? '~' : '~/' + currentPath.replace('root/', '');
+                termPrompt.innerText = `guest@oracle:${displayPath}$`;
+                
+                if (data.output) {
+                    termLog.innerHTML += data.output + '\n';
+                }
+                termLog.innerHTML += '\n';
+                document.querySelector('.content').scrollTop = document.querySelector('.content').scrollHeight;
+            });
+        }
+    });
+
+    // --- ЛОГИКА ЧАТА С ВРЕДНЫМ ИИ ---
+    aiInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const userMsg = aiInput.value.trim();
+            if (!userMsg) return;
+            
+            aiInput.value = '';
+
+            // Отображаем сообщение игрока на экране (белым цветом)
+            chatBox.innerHTML += `<div class="msg user">YOU: ${userMsg}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Отправляем реплику на локальный ИИ-сервер
+            fetch('/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMsg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Отображаем ответ ИИ (зеленым цветом)
+                chatBox.innerHTML += `<div class="msg bot">[ORACLE]: ${data.reply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                // Если игрок победил — блокируем инпут ввода, чтобы он перешел по ссылке
+                if (data.victory) {
+                    aiInput.disabled = true;
+                    aiInput.placeholder = "ACCESS UNLOCKED. SYSTEM COMPROMISED.";
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
