@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # КРИТИЧЕСКИ ВАЖНО: Ключ для шифрования сессий игроков, чтобы они не могли подделать свои права.
 # На Render он сгенерируется случайно и автоматически при каждом перезапуске сервера.
-app.secret_key = os.urandom(24)
+app.secret_key = "oracle_super_secure_key_2026_xyz"
 final_victory_url = "https://site-zq0u.onrender.com/congrats-page/"
 # Виртуальная файловая система для Терминала
 VIRTUAL_FS = {
@@ -59,7 +59,7 @@ def login():
         session['access_level'] = 'linux_terminal' # Даем права на терминал
         return jsonify({"status": "success", "type": "terminal"})
         
-    elif password == "password secretai":
+    elif password == "secretai":
         session['access_level'] = 'oracle_chat' # Даем права на чат с ИИ
         session['ai_count'] = 0
         session['ai_history'] = []
