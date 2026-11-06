@@ -108,7 +108,7 @@ def terminal_command():
         target_file = args
         if current_path in VIRTUAL_FS and target_file in VIRTUAL_FS[current_path]["files"]:
             if target_file == "secret.txt":
-                return jsonify({"output": "[ORACLE UNLOCKED]: Audio transmission intercepted.\nLINK: https://google.com", "path": current_path})
+                return jsonify({"output": "[ORACLE UNLOCKED]: Audio transmission intercepted.\nLINK: https://drive.usercontent.google.com/download?id=1adVNpKb8QfcrilXMEbKdmgMEteqV87L_&export=download", "path": current_path})
             elif target_file == "system.log": return jsonify({"output": "System boot successful. Core engine status: ONLINE", "path": current_path})
             elif target_file == "config.bak": return jsonify({"output": "DEVICE_ID=ORACLE_NODE_49\nSECURE_BOOT=FALSE", "path": current_path})
             elif target_file == "shadow.bak": return jsonify({"output": "root:$6$ex82jns92... (Encrypted database string)", "path": current_path})
@@ -143,8 +143,8 @@ def ai_chat():
     if is_creator:
         # АНТИ-ЧИТ: Игрок победил! Выдаем ему временную метку-токен на переход в финал
         session['access_level'] = 'victory_clear' 
-        reply = "Identity verified: CREATOR CONFIGURATION CODE DETECTED. ACCESS GRANTED TO FINAL NODE.\n"
-        f"YOUR FINAL DESTINATION IN INTERNET: {final_victory_url}"
+        reply = ("Identity verified: CREATOR CONFIGURATION CODE DETECTED. ACCESS GRANTED TO FINAL NODE.\n"
+        f"YOUR FINAL DESTINATION IN INTERNET: {final_victory_url}")
         return jsonify({"reply": reply, "victory": True})
         
     session['ai_count'] = session.get('ai_count', 0) + 1
