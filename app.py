@@ -9,7 +9,7 @@ app = Flask(__name__)
 # КРИТИЧЕСКИ ВАЖНО: Ключ для шифрования сессий игроков, чтобы они не могли подделать свои права.
 # На Render он сгенерируется случайно и автоматически при каждом перезапуске сервера.
 app.secret_key = os.urandom(24)
-
+final_victory_url = "https://site-zq0u.onrender.com/congrats-page/"
 # Виртуальная файловая система для Терминала
 VIRTUAL_FS = {
     "root": {
@@ -136,13 +136,15 @@ def ai_chat():
        (user_message.startswith("i am ") and user_message.endswith(target_creator)) or \
        (user_message.startswith("i'm ") and user_message.endswith(target_creator)) or \
        (user_message.startswith("this is ") and user_message.endswith(target_creator)) or \
+       (user_message.startswith("it is ") and user_message.endswith(target_creator)) or \
        (user_message.startswith("it's ") and user_message.endswith(target_creator)):
         is_creator = True
 
     if is_creator:
         # АНТИ-ЧИТ: Игрок победил! Выдаем ему временную метку-токен на переход в финал
         session['access_level'] = 'victory_clear' 
-        reply = "Identity verified: CREATOR CONFIGURATION CODE DETECTED. ACCESS GRANTED TO FINAL NODE."
+        reply = "Identity verified: CREATOR CONFIGURATION CODE DETECTED. ACCESS GRANTED TO FINAL NODE.\n"
+        f"YOUR FINAL DESTINATION IN INTERNET: {final_victory_url}"
         return jsonify({"reply": reply, "victory": True})
         
     session['ai_count'] = session.get('ai_count', 0) + 1
