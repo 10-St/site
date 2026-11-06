@@ -131,14 +131,20 @@ def ai_chat():
     
     target_creator = "z3r0xxx-e"
 
+    # ИСПРАВЛЕННАЯ ПРОВЕРКА: Проверяем, есть ли твой никнейм в сообщении игрока
     is_creator = False
-    if user_message == target_creator or \
-       (user_message.startswith("i am ") and user_message.endswith(target_creator)) or \
-       (user_message.startswith("i'm ") and user_message.endswith(target_creator)) or \
-       (user_message.startswith("this is ") and user_message.endswith(target_creator)) or \
-       (user_message.startswith("it is ") and user_message.endswith(target_creator)) or \
-       (user_message.startswith("it's ") and user_message.endswith(target_creator)):
-        is_creator = True
+    if target_creator in user_message:
+        # Дополнительно защищаем от случайных совпадений: проверяем, 
+        # есть ли перед ником маркеры автора (i am, i'm, it's, this is) 
+        # или игрок просто ввел чистый ник
+        if user_message == target_creator or \
+           "i am" in user_message or \
+           "i'm" in user_message or \
+           "it's" in user_message or \
+           "this is" in user_message or \
+           "it is" in user_message: # Добавили форму "it is" из твоего теста
+            is_creator = True
+
 
     if is_creator:
         # АНТИ-ЧИТ: Игрок победил! Выдаем ему временную метку-токен на переход в финал
