@@ -1,8 +1,9 @@
 name: Keep Website Alive
 
 on:
+  workflow_dispatch: # <-- Эта строчка добавит кнопку ручного запуска!
   schedule:
-    # Запуск каждые 12 минут (время UTC)
+    # Запуск каждые 12 минут
     - cron: '*/12 * * * *'
 
 jobs:
