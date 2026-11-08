@@ -1,0 +1,13 @@
+name: Keep Website Alive
+
+on:
+  schedule:
+    # Запуск каждые 12 минут (время UTC)
+    - cron: '*/12 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Ping Render Server
+      run: curl -s https://site-zq0u.onrender.com > /dev/null
